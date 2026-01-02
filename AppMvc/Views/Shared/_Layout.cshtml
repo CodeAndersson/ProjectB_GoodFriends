@@ -9,7 +9,10 @@
 @inject IConfiguration configuration;
 @inject IOptions<EnvironmentOptions> envOptions;
 @inject UserManager<User> userManager;
-@{}
+@{
+    var dataConnectionTag = envOptions.Value.DatabaseInfo.DataConnectionTag;
+    // Project has been refactored to the Friends domain; keep config tag backwards-compatible.
+}
 
 <html lang="en" data-bs-theme="auto">
 <!-- Part of page Frame -->
@@ -74,11 +77,12 @@
 
             <ul class="nav nav-pills">
                 <li class="nav-item"><a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link" aria-current="page">Home</a></li>
-                <li class="nav-item"><a asp-area="" asp-controller="Group" asp-action="ListOfGroups" class="nav-link" aria-current="list-of-groups">Famous groups</a></li>
+                <li class="nav-item"><a asp-area="" asp-controller="Friend" asp-action="ListOfFriends" class="nav-link" aria-current="list-of-friends">Friends</a></li>
                 <li class="nav-item"><a asp-area="" asp-controller="Home" asp-action="DataSourceInfo" class="nav-link" aria-current="overview">Data source info</a></li>
                 
                 @if (User.Identity.IsAuthenticated)
                 {
+                    <li class="nav-item"><a asp-area="" asp-controller="Members" asp-action="FriendsByCountry" class="nav-link">By country</a></li>
                     <li class="nav-item"><a asp-area="" asp-controller="DataSource" asp-action="Index" class="nav-link">Select datasource</a></li>
                     <li class="nav-item"><a asp-area="" asp-controller="Seed" asp-action="Seed" class="nav-link">Seed</a></li>
                 }
@@ -101,6 +105,8 @@
     <main>
         @RenderBody()
     </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
 
     <!--Part of page Frame -->
     <!--Modals used by the individual pages -->
@@ -170,7 +176,7 @@
       <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
         <div class="col mb-2">
             <a href="./index.html" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
-                <span class="mb-3 mb-md-0 text-body-secondary">&copy;&nbsp;2025&nbsp;Seido&nbsp;AB</span>
+                <span class="mb-3 mb-md-0 text-body-secondary">By Alexander Andersson</span>
             </a>
         </div>
         <div class="col mb-4">
@@ -201,7 +207,7 @@
                     <span class="p-0 text-body-secondary small fw-light">Database</span>
                 </li>
                 <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">@envOptions.Value.DatabaseInfo.DataConnectionTag</span>
+                     <span class="p-0 text-body-secondary small fw-light">@dataConnectionTag</span>
                 </li>
                 <li class="nav-item mb-2">
                     <span class="p-0 text-body-secondary small fw-light">@envOptions.Value.DatabaseInfo.DefaultDataUser</span>

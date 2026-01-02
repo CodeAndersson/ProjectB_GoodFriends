@@ -1,38 +1,61 @@
 -- PostgreSQL Database Initialization Script
--- Note: Make sure you are connected to the 'sql-music' database before running this script
+-- Note: Make sure you are connected to the 'sql-friends' database before running this script
 
 -- Create schemas
 CREATE SCHEMA IF NOT EXISTS gstusr;
 CREATE SCHEMA IF NOT EXISTS usr;
 CREATE SCHEMA IF NOT EXISTS supusr;
 
+SELECT COUNT(*) FROM supusr."Friends";
+
 -- Create views
 CREATE OR REPLACE VIEW gstusr."vwInfoDb" AS
-    SELECT (SELECT COUNT(*) FROM supusr."MusicGroups" WHERE "Seeded" = true) as "NrSeededMusicGroups", 
-        (SELECT COUNT(*) FROM supusr."MusicGroups" WHERE "Seeded" = false) as "NrUnseededMusicGroups",
-        (SELECT COUNT(*) FROM supusr."Albums" WHERE "Seeded" = true) as "NrSeededAlbums", 
-        (SELECT COUNT(*) FROM supusr."Albums" WHERE "Seeded" = false) as "NrUnseededAlbums",
-        (SELECT COUNT(*) FROM supusr."Artists" WHERE "Seeded" = true) as "NrSeededArtists", 
-        (SELECT COUNT(*) FROM supusr."Artists" WHERE "Seeded" = false) as "NrUnseededArtists";
+    SELECT (SELECT COUNT(*) FROM supusr."Friends" WHERE "Seeded" = true) as "NrSeededFriends", 
+        (SELECT COUNT(*) FROM supusr."Friends" WHERE "Seeded" = false) as "NrUnseededFriends",
+        (SELECT COUNT(*) FROM supusr."Friends" WHERE "AddressId" IS NOT NULL) as "NrFriendsWithAddress",
+        (SELECT COUNT(*) FROM supusr."Addresses" WHERE "Seeded" = true) as "NrSeededAddresses", 
+        (SELECT COUNT(*) FROM supusr."Addresses" WHERE "Seeded" = false) as "NrUnseededAddresses",
+        (SELECT COUNT(*) FROM supusr."Pets" WHERE "Seeded" = true) as "NrSeededPets", 
+        (SELECT COUNT(*) FROM supusr."Pets" WHERE "Seeded" = false) as "NrUnseededPets",
+        (SELECT COUNT(*) FROM supusr."Quotes" WHERE "Seeded" = true) as "NrSeededQuotes", 
+        (SELECT COUNT(*) FROM supusr."Quotes" WHERE "Seeded" = false) as "NrUnseededQuotes";
+
+CREATE OR REPLACE VIEW gstusr."vwInfoFriends" AS
+    SELECT a."Country" as "Country", a."City" as "City", COUNT(*) as "NrFriends" FROM supusr."Friends" f
+    INNER JOIN supusr."Addresses" a ON f."AddressId" = a."AddressId"
+    GROUP BY ROLLUP(a."Country", a."City");
+
+CREATE OR REPLACE VIEW gstusr."vwInfoPets" AS
+    SELECT a."Country" as "Country", a."City" as "City", COUNT(p."PetId") as "NrPets" FROM supusr."Friends" f
+    INNER JOIN supusr."Addresses" a ON f."AddressId" = a."AddressId"
+    INNER JOIN supusr."Pets" p ON p."FriendId" = f."FriendId"
+    GROUP BY ROLLUP(a."Country", a."City");
+
+CREATE OR REPLACE VIEW gstusr."vwInfoQuotes" AS
+    SELECT "Author" as "Author", COUNT("QuoteText") as "NrQuotes" FROM supusr."Quotes" 
+    GROUP BY "Author";
 
 -- Create the DeleteAll function (PostgreSQL uses functions instead of procedures for this pattern)
 CREATE OR REPLACE FUNCTION supusr."spDeleteAll"(
     seededParam BOOLEAN DEFAULT true,
-    OUT nrMusicGroupsAffected INTEGER,
-    OUT nrAlbumsAffected INTEGER,
-    OUT nrArtistsAffected INTEGER
+    OUT nrFriendsAffected INTEGER,
+    OUT nrAddressesAffected INTEGER,
+    OUT nrPetsAffected INTEGER,
+    OUT nrQuotesAffected INTEGER
 )
 RETURNS RECORD
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    SELECT COUNT(*) INTO nrMusicGroupsAffected FROM supusr."MusicGroups" WHERE "Seeded" = seededParam;
-    SELECT COUNT(*) INTO nrAlbumsAffected FROM supusr."Albums" WHERE "Seeded" = seededParam;
-    SELECT COUNT(*) INTO nrArtistsAffected FROM supusr."Artists" WHERE "Seeded" = seededParam;
+    SELECT COUNT(*) INTO nrFriendsAffected FROM supusr."Friends" WHERE "Seeded" = seededParam;
+    SELECT COUNT(*) INTO nrAddressesAffected FROM supusr."Addresses" WHERE "Seeded" = seededParam;
+    SELECT COUNT(*) INTO nrPetsAffected FROM supusr."Pets" WHERE "Seeded" = seededParam;
+    SELECT COUNT(*) INTO nrQuotesAffected FROM supusr."Quotes" WHERE "Seeded" = seededParam;
 
-    DELETE FROM supusr."MusicGroups" WHERE "Seeded" = seededParam;
-    DELETE FROM supusr."Albums" WHERE "Seeded" = seededParam;
-    DELETE FROM supusr."Artists" WHERE "Seeded" = seededParam;
+    DELETE FROM supusr."Friends" WHERE "Seeded" = seededParam;
+    DELETE FROM supusr."Addresses" WHERE "Seeded" = seededParam;
+    DELETE FROM supusr."Pets" WHERE "Seeded" = seededParam;
+    DELETE FROM supusr."Quotes" WHERE "Seeded" = seededParam;
 
     -- Test to throw an error (uncomment if needed)
     -- RAISE EXCEPTION 'Error occurred in supusr.spDeleteAll';
@@ -81,10 +104,10 @@ END
 $BODY$;
 
 -- Grant database connection privileges
-GRANT CONNECT ON DATABASE "sql-music" TO gstusr;
-GRANT CONNECT ON DATABASE "sql-music" TO usr;
-GRANT CONNECT ON DATABASE "sql-music" TO supusr;
-GRANT CONNECT ON DATABASE "sql-music" TO dbo;
+GRANT CONNECT ON DATABASE "sql-friends" TO gstusr;
+GRANT CONNECT ON DATABASE "sql-friends" TO usr;
+GRANT CONNECT ON DATABASE "sql-friends" TO supusr;
+GRANT CONNECT ON DATABASE "sql-friends" TO dbo;
 
 -- Grant schema usage privileges
 GRANT USAGE ON SCHEMA gstusr TO gstusrrole;
@@ -93,6 +116,9 @@ GRANT USAGE ON SCHEMA public TO gstusrrole;
 
 -- Grant role privileges for gstusrrole
 GRANT SELECT ON gstusr."vwInfoDb" TO gstusrrole;
+GRANT SELECT ON gstusr."vwInfoFriends" TO gstusrrole;
+GRANT SELECT ON gstusr."vwInfoPets" TO gstusrrole;
+GRANT SELECT ON gstusr."vwInfoQuotes" TO gstusrrole;
 GRANT EXECUTE ON FUNCTION gstusr."spLogin"(VARCHAR, VARCHAR) TO gstusrrole;
 
 -- Grant role privileges for usrrole
@@ -104,9 +130,9 @@ GRANT DELETE ON ALL TABLES IN SCHEMA supusr TO supusrrole;
 GRANT EXECUTE ON FUNCTION supusr."spDeleteAll"(BOOLEAN) TO supusrrole;
 
 -- Grant role privileges for dborole (full privileges)
-GRANT ALL PRIVILEGES ON DATABASE "sql-music" TO dborole;
+GRANT ALL PRIVILEGES ON DATABASE "sql-friends" TO dborole;
 -- Grant superuser-like privileges (alternative: ALTER ROLE dborole SUPERUSER;)
-GRANT CREATE ON DATABASE "sql-music" TO dborole;
+GRANT CREATE ON DATABASE "sql-friends" TO dborole;
 GRANT ALL ON ALL TABLES IN SCHEMA gstusr, usr, supusr, dbo, public TO dborole;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA gstusr, usr, supusr, dbo, public TO dborole;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA gstusr, usr, supusr, dbo, public TO dborole;

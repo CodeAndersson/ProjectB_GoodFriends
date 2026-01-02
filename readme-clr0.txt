@@ -7,17 +7,17 @@ NOTE: the WebApi application is now removed for simplicity.
         - alternatively a published public WebApi can be accessed
 
 1. Create the database. With Terminal in folder _scripts 
-   E.g. database name: sql-music, database type: sqlserver, server: docker, default user: dbo, application: ../AppRazor
+   E.g. database name: sql-friends, database type: sqlserver, server: docker, default user: dbo, application: ../AppRazor
 
    macOs
-   ./database-rebuild-all.sh sql-music sqlserver docker dbo ../AppRazor
-   ./database-rebuild-all.sh sql-music mysql docker dbo ../AppRazor
-   ./database-rebuild-all.sh sql-music postgresql docker dbo ../AppRazor
+   ./database-rebuild-all.sh sql-friends sqlserver docker dbo ../AppRazor
+   ./database-rebuild-all.sh sql-friends mysql docker dbo ../AppRazor
+   ./database-rebuild-all.sh sql-friends postgresql docker dbo ../AppRazor
    
    Windows
-   ./database-rebuild-all.ps1 sql-music sqlserver docker dbo ../AppRazor
-   ./database-rebuild-all.ps1 sql-music mysql docker dbo ../AppRazor
-   ./database-rebuild-all.ps1 sql-music postgresql docker dbo ../AppRazor
+   ./database-rebuild-all.ps1 sql-friends sqlserver docker dbo ../AppRazor
+   ./database-rebuild-all.ps1 sql-friends mysql docker dbo ../AppRazor
+   ./database-rebuild-all.ps1 sql-friends postgresql docker dbo ../AppRazor
 
    Ensure no errors from build, migration or database update
    ../AppRazor above can be exchanged to ../AppMvc

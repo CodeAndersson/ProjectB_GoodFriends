@@ -1,0 +1,62 @@
+@model AppMvc.Models.EditAddressViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Edit address";
+}
+
+<div class="container px-4 py-4" id="edit-address">
+    <h2 class="pb-2 border-bottom">Edit address</h2>
+
+    <form method="post" novalidate>
+        <div class="row g-3">
+            <div class="col-12">
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="FriendId" />
+
+            <div class="col-md-8">
+                <label asp-for="Input.StreetAddress" class="form-label"></label>
+                <input asp-for="Input.StreetAddress" class="form-control" />
+                <span asp-validation-for="Input.StreetAddress" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Input.ZipCode" class="form-label"></label>
+                <input asp-for="Input.ZipCode" class="form-control" />
+                <span asp-validation-for="Input.ZipCode" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Input.City" class="form-label"></label>
+                <input asp-for="Input.City" class="form-control" />
+                <span asp-validation-for="Input.City" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Input.Country" class="form-label"></label>
+                <input asp-for="Input.Country" class="form-control" />
+                <span asp-validation-for="Input.Country" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-success btn-sm">Save</button>
+                @if (Model.FriendId != Guid.Empty)
+                {
+                    <a class="btn btn-outline-secondary btn-sm ms-2" asp-controller="Friend" asp-action="ViewFriend" asp-route-id="@Model.FriendId">Cancel</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-secondary btn-sm ms-2" asp-controller="Friend" asp-action="ListOfFriends">Cancel</a>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

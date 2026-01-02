@@ -25,9 +25,15 @@ public class MainDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 #endif
 
     #region C# model of database tables
+    public DbSet<FriendDbM> Friends { get; set; }
+    public DbSet<AddressDbM> Addresses { get; set; }
+    public DbSet<PetDbM> Pets { get; set; }
+    public DbSet<QuoteDbM> Quotes { get; set; }
+
+    // Legacy template DbSets kept for compilation only. They are ignored in OnModelCreating.
     public DbSet<MusicGroupDbM> MusicGroups { get; set; }
     public DbSet<AlbumDbM> Albums { get; set; }
-    public DbSet<ArtistDbM> Artists { get; set; } 
+    public DbSet<ArtistDbM> Artists { get; set; }
 
     //User for login
     //now created by Identity
@@ -49,6 +55,55 @@ public class MainDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         #region model the Views
         modelBuilder.Entity<GstUsrInfoDbDto>().ToView("vwInfoDb", "gstusr").HasNoKey();
+        #endregion
+
+        #region GoodFriends domain
+        modelBuilder.Entity<AddressDbM>()
+            .HasIndex(a => new { a.StreetAddress, a.ZipCode, a.City, a.Country })
+            .IsUnique();
+
+        modelBuilder.Entity<FriendDbM>()
+            .HasIndex(f => new { f.FirstName, f.LastName });
+        modelBuilder.Entity<FriendDbM>()
+            .HasIndex(f => new { f.LastName, f.FirstName });
+
+        modelBuilder.Entity<FriendDbM>()
+            .HasOne(f => f.AddressDbM)
+            .WithMany(a => a.FriendsDbM)
+            .HasForeignKey(f => f.AddressId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<PetDbM>()
+            .HasOne(p => p.FriendDbM)
+            .WithMany(f => f.PetsDbM)
+            .HasForeignKey(p => p.FriendId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FriendDbM>()
+            .HasMany(f => f.QuotesDbM)
+            .WithMany(q => q.FriendsDbM)
+            .UsingEntity<FriendDbMQuoteDbM>(
+                j => j
+                    .HasOne(x => x.QuotesDbM)
+                    .WithMany()
+                    .HasForeignKey(x => x.QuotesDbMQuoteId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne(x => x.FriendsDbM)
+                    .WithMany()
+                    .HasForeignKey(x => x.FriendsDbMFriendId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.ToTable("FriendDbMQuoteDbM", "supusr");
+                    j.HasKey(x => new { x.FriendsDbMFriendId, x.QuotesDbMQuoteId });
+                });
+        #endregion
+
+        #region Legacy template entities
+        modelBuilder.Ignore<MusicGroupDbM>();
+        modelBuilder.Ignore<AlbumDbM>();
+        modelBuilder.Ignore<ArtistDbM>();
         #endregion
 
         #region override modelbuilder

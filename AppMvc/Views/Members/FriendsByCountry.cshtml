@@ -1,0 +1,26 @@
+@model AppMvc.Models.FriendsByCountryViewModel
+@{
+    ViewData["Title"] = "Friends by country";
+}
+
+<div class="container px-4 py-4" id="friends-by-country">
+    <h2 class="pb-2 border-bottom">Overview friends by country</h2>
+
+    <div class="row mb-2 text-center">
+        <div class="col-md-8 themed-grid-head-col">Country</div>
+        <div class="col-md-4 themed-grid-head-col">#Friends</div>
+    </div>
+
+    @if (Model.Countries is not null)
+    {
+        foreach (var c in Model.Countries)
+        {
+            <div class="row mb-2 text-center">
+                <div class="col-md-8 themed-grid-col">
+                    <a asp-controller="Members" asp-action="FriendsByCityInCountry" asp-route-country="@c.Country">@c.Country</a>
+                </div>
+                <div class="col-md-4 themed-grid-col">@c.NrFriends</div>
+            </div>
+        }
+    }
+</div>

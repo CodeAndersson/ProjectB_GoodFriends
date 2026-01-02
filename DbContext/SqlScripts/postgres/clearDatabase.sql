@@ -1,6 +1,4 @@
 -- PostgreSQL Database Clear Script
--- Note: Make sure you are connected to the 'sql-music' database before running this script
-
 DROP TABLE IF EXISTS public."__EFMigrationsHistory";
 
 -- Drop schemas will remove all objects within them
@@ -22,7 +20,7 @@ IF EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gstusrrole') THEN
     REVOKE ALL PRIVILEGES ON SCHEMA public FROM gstusrrole;
 END IF;
 IF EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'dborole') THEN
-    REVOKE ALL PRIVILEGES ON DATABASE "sql-music" FROM dborole;
+    REVOKE ALL PRIVILEGES ON DATABASE "sql-friends" FROM dborole;
     REVOKE ALL PRIVILEGES ON SCHEMA public FROM dborole;
 END IF;
 END
@@ -38,16 +36,16 @@ DROP ROLE IF EXISTS dborole;
 DO $BODY$
 BEGIN
     IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'gstusr') THEN
-        REVOKE ALL PRIVILEGES ON DATABASE "sql-music" FROM gstusr;
+        REVOKE ALL PRIVILEGES ON DATABASE "sql-friends" FROM gstusr;
     END IF;
     IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'usr') THEN
-        REVOKE ALL PRIVILEGES ON DATABASE "sql-music" FROM usr;
+        REVOKE ALL PRIVILEGES ON DATABASE "sql-friends" FROM usr;
     END IF;
     IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'supusr') THEN
-        REVOKE ALL PRIVILEGES ON DATABASE "sql-music" FROM supusr;
+        REVOKE ALL PRIVILEGES ON DATABASE "sql-friends" FROM supusr;
     END IF;
     IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'dbo') THEN
-        REVOKE ALL PRIVILEGES ON DATABASE "sql-music" FROM dbo;
+        REVOKE ALL PRIVILEGES ON DATABASE "sql-friends" FROM dbo;
     END IF;
 END
 $BODY$;

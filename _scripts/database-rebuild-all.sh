@@ -9,9 +9,9 @@
 # ./database-rebuild-all.sh databasename [sqlserver|mysql|postgresql] [docker|azure] [root|dbo|supusr|usr|gstusr] [appsettingsFolder]
 
 # example:
-# ./database-rebuild-all.sh sql-music sqlserver docker dbo ../AppWebApi
-# ./database-rebuild-all.sh sql-music sqlserver docker dbo ../AppRazor
-# ./database-rebuild-all.sh sql-music sqlserver docker dbo ../AppMvc
+# ./database-rebuild-all.sh sql-friends sqlserver docker dbo ../AppWebApi
+# ./database-rebuild-all.sh sql-friends sqlserver docker dbo ../AppRazor
+# ./database-rebuild-all.sh sql-friends sqlserver docker dbo ../AppMvc
 
 # Exit immediately if any command fails
 set -e

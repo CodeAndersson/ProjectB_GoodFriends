@@ -54,6 +54,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// Authorization handlers (resource-based)
+builder.Services.AddSingleton<IAuthorizationHandler, FriendAuthorizationHandler>();
+
+// Data source selector (WebApi vs local in-memory)
+builder.Services.AddSingleton<IMusicServiceActive, MusicServiceActive>();
+
 #region Injecting a dependency service to read FriendsWebApi
 builder.Services.AddTransient<JwtTokenHandler>();
 var webApiBaseUri = builder.Configuration["DataService:WebApiBaseUri"];
@@ -82,11 +88,28 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 
 //Inject Services
 builder.Services.AddScoped<ILoginService, LoginServiceWapi>();
-builder.Services.AddScoped<IAdminService, AdminServiceWapi>();
-builder.Services.AddScoped<IFriendsService, FriendsServiceWapi>();
-builder.Services.AddScoped<IAddressesService, AddressesServiceWapi>();
-builder.Services.AddScoped<IPetsService, PetsServiceWapi>();
-builder.Services.AddScoped<IQuotesService, QuotesServiceWapi>();
+
+// Local in-memory datasource services
+builder.Services.AddSingleton<Services.InMemory.InMemoryFriendsStore>();
+builder.Services.AddScoped<AdminServiceLocal>();
+builder.Services.AddScoped<FriendsServiceLocal>();
+builder.Services.AddScoped<AddressesServiceLocal>();
+builder.Services.AddScoped<PetsServiceLocal>();
+builder.Services.AddScoped<QuotesServiceLocal>();
+
+// WebApi datasource services (concrete types)
+builder.Services.AddScoped<AdminServiceWapi>();
+builder.Services.AddScoped<FriendsServiceWapi>();
+builder.Services.AddScoped<AddressesServiceWapi>();
+builder.Services.AddScoped<PetsServiceWapi>();
+builder.Services.AddScoped<QuotesServiceWapi>();
+
+// Active switchers (selected via SelectDataSource)
+builder.Services.AddScoped<IAdminService, AdminServiceActive>();
+builder.Services.AddScoped<IFriendsService, FriendsServiceActive>();
+builder.Services.AddScoped<IAddressesService, AddressesServiceActive>();
+builder.Services.AddScoped<IPetsService, PetsServiceActive>();
+builder.Services.AddScoped<IQuotesService, QuotesServiceActive>();
 #endregion
 
 var app = builder.Build();

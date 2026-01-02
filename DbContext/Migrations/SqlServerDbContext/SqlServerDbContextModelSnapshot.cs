@@ -22,85 +22,102 @@ namespace DbContext.Migrations.SqlServerDbContext
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ArtistDbMMusicGroupDbM", b =>
+            modelBuilder.Entity("DbModels.AddressDbM", b =>
                 {
-                    b.Property<Guid>("ArtistsDbMArtistId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MusicGroupsDbMMusicGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ArtistsDbMArtistId", "MusicGroupsDbMMusicGroupId");
-
-                    b.HasIndex("MusicGroupsDbMMusicGroupId");
-
-                    b.ToTable("ArtistDbMMusicGroupDbM", "supusr");
-                });
-
-            modelBuilder.Entity("DbModels.AlbumDbM", b =>
-                {
-                    b.Property<Guid>("AlbumId")
+                    b.Property<Guid>("AddressId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("CopiesSold")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("MusicGroupDbMMusicGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
-                    b.Property<int>("ReleaseYear")
-                        .HasColumnType("int");
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)");
 
                     b.Property<bool>("Seeded")
                         .HasColumnType("bit");
 
-                    b.HasKey("AlbumId");
+                    b.Property<string>("StreetAddress")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)");
 
-                    b.HasIndex("MusicGroupDbMMusicGroupId");
+                    b.Property<int>("ZipCode")
+                        .HasColumnType("int");
 
-                    b.ToTable("Albums", "supusr");
+                    b.HasKey("AddressId");
+
+                    b.HasIndex("StreetAddress", "ZipCode", "City", "Country")
+                        .IsUnique();
+
+                    b.ToTable("Addresses", "supusr");
                 });
 
-            modelBuilder.Entity("DbModels.ArtistDbM", b =>
+            modelBuilder.Entity("DbModels.FriendDbM", b =>
                 {
-                    b.Property<Guid>("ArtistId")
+                    b.Property<Guid>("FriendId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("BirthDay")
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("varchar(200)");
 
                     b.Property<bool>("Seeded")
                         .HasColumnType("bit");
 
-                    b.HasKey("ArtistId");
+                    b.HasKey("FriendId");
 
-                    b.ToTable("Artists", "supusr");
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("FirstName", "LastName");
+
+                    b.HasIndex("LastName", "FirstName");
+
+                    b.ToTable("Friends", "supusr");
                 });
 
-            modelBuilder.Entity("DbModels.MusicGroupDbM", b =>
+            modelBuilder.Entity("DbModels.FriendDbMQuoteDbM", b =>
                 {
-                    b.Property<Guid>("MusicGroupId")
+                    b.Property<Guid>("FriendsDbMFriendId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("QuotesDbMQuoteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("FriendsDbMFriendId", "QuotesDbMQuoteId");
+
+                    b.HasIndex("QuotesDbMQuoteId");
+
+                    b.ToTable("FriendDbMQuoteDbM", "supusr");
+                });
+
+            modelBuilder.Entity("DbModels.PetDbM", b =>
+                {
+                    b.Property<Guid>("PetId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("EstablishedYear")
+                    b.Property<Guid>("FriendId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Kind")
                         .HasColumnType("int");
 
-                    b.Property<int>("Genre")
+                    b.Property<int>("Mood")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -110,12 +127,37 @@ namespace DbContext.Migrations.SqlServerDbContext
                     b.Property<bool>("Seeded")
                         .HasColumnType("bit");
 
-                    b.Property<string>("strGenre")
+                    b.Property<string>("strKind")
                         .HasColumnType("varchar(200)");
 
-                    b.HasKey("MusicGroupId");
+                    b.Property<string>("strMood")
+                        .HasColumnType("varchar(200)");
 
-                    b.ToTable("MusicGroups", "supusr");
+                    b.HasKey("PetId");
+
+                    b.HasIndex("FriendId");
+
+                    b.ToTable("Pets", "supusr");
+                });
+
+            modelBuilder.Entity("DbModels.QuoteDbM", b =>
+                {
+                    b.Property<Guid>("QuoteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Author")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("QuoteText")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<bool>("Seeded")
+                        .HasColumnType("bit");
+
+                    b.HasKey("QuoteId");
+
+                    b.ToTable("Quotes", "supusr");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -323,13 +365,31 @@ namespace DbContext.Migrations.SqlServerDbContext
 
             modelBuilder.Entity("Models.DTO.GstUsrInfoDbDto", b =>
                 {
+                    b.Property<int>("NrFriendsWithAddress")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrSeededAddresses")
+                        .HasColumnType("int");
+
                     b.Property<int>("NrSeededAlbums")
                         .HasColumnType("int");
 
                     b.Property<int>("NrSeededArtists")
                         .HasColumnType("int");
 
+                    b.Property<int>("NrSeededFriends")
+                        .HasColumnType("int");
+
                     b.Property<int>("NrSeededMusicGroups")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrSeededPets")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrSeededQuotes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrUnseededAddresses")
                         .HasColumnType("int");
 
                     b.Property<int>("NrUnseededAlbums")
@@ -338,7 +398,16 @@ namespace DbContext.Migrations.SqlServerDbContext
                     b.Property<int>("NrUnseededArtists")
                         .HasColumnType("int");
 
+                    b.Property<int>("NrUnseededFriends")
+                        .HasColumnType("int");
+
                     b.Property<int>("NrUnseededMusicGroups")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrUnseededPets")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NrUnseededQuotes")
                         .HasColumnType("int");
 
                     b.ToTable((string)null);
@@ -346,30 +415,44 @@ namespace DbContext.Migrations.SqlServerDbContext
                     b.ToView("vwInfoDb", "gstusr");
                 });
 
-            modelBuilder.Entity("ArtistDbMMusicGroupDbM", b =>
+            modelBuilder.Entity("DbModels.FriendDbM", b =>
                 {
-                    b.HasOne("DbModels.ArtistDbM", null)
-                        .WithMany()
-                        .HasForeignKey("ArtistsDbMArtistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("DbModels.AddressDbM", "AddressDbM")
+                        .WithMany("FriendsDbM")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("DbModels.MusicGroupDbM", null)
-                        .WithMany()
-                        .HasForeignKey("MusicGroupsDbMMusicGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AddressDbM");
                 });
 
-            modelBuilder.Entity("DbModels.AlbumDbM", b =>
+            modelBuilder.Entity("DbModels.FriendDbMQuoteDbM", b =>
                 {
-                    b.HasOne("DbModels.MusicGroupDbM", "MusicGroupDbM")
-                        .WithMany("AlbumsDbM")
-                        .HasForeignKey("MusicGroupDbMMusicGroupId")
+                    b.HasOne("DbModels.FriendDbM", "FriendsDbM")
+                        .WithMany()
+                        .HasForeignKey("FriendsDbMFriendId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("MusicGroupDbM");
+                    b.HasOne("DbModels.QuoteDbM", "QuotesDbM")
+                        .WithMany()
+                        .HasForeignKey("QuotesDbMQuoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FriendsDbM");
+
+                    b.Navigation("QuotesDbM");
+                });
+
+            modelBuilder.Entity("DbModels.PetDbM", b =>
+                {
+                    b.HasOne("DbModels.FriendDbM", "FriendDbM")
+                        .WithMany("PetsDbM")
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FriendDbM");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -423,9 +506,14 @@ namespace DbContext.Migrations.SqlServerDbContext
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DbModels.MusicGroupDbM", b =>
+            modelBuilder.Entity("DbModels.AddressDbM", b =>
                 {
-                    b.Navigation("AlbumsDbM");
+                    b.Navigation("FriendsDbM");
+                });
+
+            modelBuilder.Entity("DbModels.FriendDbM", b =>
+                {
+                    b.Navigation("PetsDbM");
                 });
 #pragma warning restore 612, 618
         }

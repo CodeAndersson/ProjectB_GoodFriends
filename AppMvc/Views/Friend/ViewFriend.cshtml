@@ -1,0 +1,206 @@
+@model AppMvc.Models.ViewFriendViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@attribute [IgnoreAntiforgeryToken]
+
+@{
+    ViewData["Title"] = "View friend";
+}
+
+<div class="container px-4 py-4" id="view-friend">
+    <h2 class="pb-2 border-bottom">View friend details</h2>
+
+    <div class="mb-3">
+        @if (Model.CanEdit)
+        {
+            <a class="btn btn-secondary btn-sm" asp-controller="Friend" asp-action="EditFriend" asp-route-id="@Model.Id">Edit friend</a>
+            @if (Model.Friend?.Address is not null && Model.Friend.Address.AddressId != Guid.Empty)
+            {
+                <a class="btn btn-secondary btn-sm" asp-controller="Friend" asp-action="EditAddress" asp-route-id="@Model.Friend.Address.AddressId" asp-route-friendId="@Model.Id">Edit address</a>
+            }
+        }
+    </div>
+
+    @if (Model.Friend is not null)
+    {
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Name</label>
+                <input class="form-control" value="@Model.Friend.FirstName @Model.Friend.LastName" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input class="form-control" value="@Model.Friend.Email" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Birthday</label>
+                <input class="form-control" value="@Model.Friend.Birthday" readonly />
+            </div>
+        </div>
+
+        <hr />
+        <h3>Address</h3>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Street</label>
+                <input class="form-control" value="@Model.Friend.Address?.StreetAddress" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Zip</label>
+                <input class="form-control" value="@Model.Friend.Address?.ZipCode" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">City</label>
+                <input class="form-control" value="@Model.Friend.Address?.City" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Country</label>
+                <input class="form-control" value="@Model.Friend.Address?.Country" readonly />
+            </div>
+        </div>
+
+        <hr />
+        <h3>Pets</h3>
+        <div class="mb-2">
+            @if (Model.CanEdit)
+            {
+                <a class="btn btn-success btn-sm" asp-controller="Friend" asp-action="CreatePet" asp-route-friendId="@Model.Id">+ Add pet</a>
+            }
+        </div>
+
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" asp-for="PetId" />
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-4 themed-grid-head-col">Name</div>
+                <div class="col-md-4 themed-grid-head-col">Kind</div>
+                <div class="col-md-2 themed-grid-head-col">Mood</div>
+                <div class="col-md-2 themed-grid-head-col">Actions</div>
+            </div>
+
+            @if (Model.Friend.Pets is not null)
+            {
+                foreach (var pet in Model.Friend.Pets)
+                {
+                    <div class="row mb-2 text-center">
+                        <div class="col-md-4 themed-grid-col">@pet.Name</div>
+                        <div class="col-md-4 themed-grid-col">@pet.Kind</div>
+                        <div class="col-md-2 themed-grid-col">@pet.Mood</div>
+                        <div class="col-md-2 themed-grid-col">
+                            @if (Model.CanEdit)
+                            {
+                                <a class="btn btn-secondary btn-sm" asp-controller="Friend" asp-action="EditPet" asp-route-id="@pet.PetId" asp-route-friendId="@Model.Id">Edit</a>
+                            }
+                            @if (Model.CanDelete)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delPetModal" data-delete-id="@pet.PetId" data-delete-name="@pet.Name">Del</button>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="modal fade" id="delPetModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger">Confirm deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="delPetModalBody">Are you sure?</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" asp-controller="Friend" asp-action="DeletePet" class="btn btn-danger">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <hr />
+        <h3>Quotes</h3>
+        <div class="mb-2">
+            @if (Model.CanEdit)
+            {
+                <a class="btn btn-success btn-sm" asp-controller="Friend" asp-action="CreateQuote" asp-route-friendId="@Model.Id">+ Add quote</a>
+            }
+        </div>
+
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" asp-for="QuoteId" />
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-8 themed-grid-head-col">Quote</div>
+                <div class="col-md-2 themed-grid-head-col">Author</div>
+                <div class="col-md-2 themed-grid-head-col">Actions</div>
+            </div>
+
+            @if (Model.Friend.Quotes is not null)
+            {
+                foreach (var q in Model.Friend.Quotes)
+                {
+                    <div class="row mb-2 text-center">
+                        <div class="col-md-8 themed-grid-col">@q.QuoteText</div>
+                        <div class="col-md-2 themed-grid-col">@q.Author</div>
+                        <div class="col-md-2 themed-grid-col">
+                            @if (Model.CanEdit)
+                            {
+                                <a class="btn btn-secondary btn-sm" asp-controller="Friend" asp-action="EditQuote" asp-route-id="@q.QuoteId" asp-route-friendId="@Model.Id">Edit</a>
+                            }
+                            @if (Model.CanDelete)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delQuoteModal" data-delete-id="@q.QuoteId" data-delete-name="@q.Author">Del</button>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="modal fade" id="delQuoteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger">Confirm deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="delQuoteModalBody">Are you sure?</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" asp-controller="Friend" asp-action="DeleteQuote" class="btn btn-danger">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+        (function () {
+            const petModal = document.getElementById('delPetModal');
+            if (petModal) {
+                petModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-delete-id');
+                    const name = button.getAttribute('data-delete-name');
+                    document.getElementById('PetId').value = id;
+                    document.getElementById('delPetModalBody').innerText = name + ' is about to be deleted.';
+                });
+            }
+
+            const quoteModal = document.getElementById('delQuoteModal');
+            if (quoteModal) {
+                quoteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-delete-id');
+                    const name = button.getAttribute('data-delete-name');
+                    document.getElementById('QuoteId').value = id;
+                    document.getElementById('delQuoteModalBody').innerText = 'Quote by ' + name + ' is about to be deleted.';
+                });
+            }
+        })();
+    </script>
+}

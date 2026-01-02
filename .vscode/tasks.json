@@ -34,7 +34,19 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/GoodMusic.slnx"
+                "${workspaceFolder}/AppRazor/AppRazor.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch-mvc",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/AppMvc/AppMvc.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

@@ -1,0 +1,42 @@
+@model AppMvc.Models.CreateQuoteViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Create quote";
+}
+
+<div class="container px-4 py-4" id="create-quote">
+    <h2 class="pb-2 border-bottom">Create quote</h2>
+
+    <form method="post" novalidate>
+        <div class="row g-3">
+            <div class="col-12">
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
+
+            <input type="hidden" asp-for="FriendId" />
+
+            <div class="col-md-8">
+                <label asp-for="Input.Quote" class="form-label"></label>
+                <input asp-for="Input.Quote" class="form-control" />
+                <span asp-validation-for="Input.Quote" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Input.Author" class="form-label"></label>
+                <input asp-for="Input.Author" class="form-control" />
+                <span asp-validation-for="Input.Author" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-success btn-sm">Create</button>
+                <a class="btn btn-outline-secondary btn-sm ms-2" asp-controller="Friend" asp-action="ViewFriend" asp-route-id="@Model.FriendId">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
