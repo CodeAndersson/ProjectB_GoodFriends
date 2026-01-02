@@ -63,7 +63,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddSingleton<IAuthorizationHandler, FriendAuthorizationHandler>();
 
 // Data source selector (WebApi vs local DB)
-builder.Services.AddSingleton<IMusicServiceActive, MusicServiceActive>();
+builder.Services.AddSingleton<IDataSourceActive, DataSourceActive>();
 
 #region Injecting a dependency service to read FriendsWebApi
 builder.Services.AddTransient<JwtTokenHandler>();

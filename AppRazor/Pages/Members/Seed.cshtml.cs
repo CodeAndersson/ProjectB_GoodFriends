@@ -9,11 +9,11 @@ namespace AppRazor.Pages
     {
         //Just like for WebApi
         readonly IAdminService _admin_service = null;
-        readonly IMusicServiceActive _dataSourceActive = null;
+        readonly IDataSourceActive _dataSourceActive = null;
         readonly ILogger<SeedModel> _logger = null;
 
         public int NrOfFriends { get; private set; }
-        public Services.MusicDataSource ActiveDataSource => _dataSourceActive.ActiveDataSource;
+        public Services.DataSource ActiveDataSource => _dataSourceActive.ActiveDataSource;
 
         [BindProperty]
         [Required (ErrorMessage = "You must enter nr of items to seed")]
@@ -34,7 +34,7 @@ namespace AppRazor.Pages
 
             if (ModelState.IsValid)
             {
-                if (ActiveDataSource == Services.MusicDataSource.WebApi)
+                if (ActiveDataSource == Services.DataSource.WebApi)
                 {
                     ModelState.AddModelError(string.Empty, "Friends WebApi does not support seeding from this app. Switch datasource to SQLDatabase to seed local in-memory data.");
                     return Page();
@@ -66,7 +66,7 @@ namespace AppRazor.Pages
         }
 
         //Inject services just like in WebApi
-        public SeedModel(IAdminService admin_service, IMusicServiceActive dataSourceActive, ILogger<SeedModel> logger)
+        public SeedModel(IAdminService admin_service, IDataSourceActive dataSourceActive, ILogger<SeedModel> logger)
         {
             _admin_service = admin_service;
             _dataSourceActive = dataSourceActive;

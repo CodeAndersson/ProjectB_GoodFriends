@@ -5,18 +5,18 @@ namespace Services;
 
 public class FriendsServiceActive : IFriendsService
 {
-    private readonly IMusicServiceActive _active;
+    private readonly IDataSourceActive _active;
     private readonly FriendsServiceWapi _wapi;
     private readonly FriendsServiceLocal _local;
 
-    public FriendsServiceActive(IMusicServiceActive active, FriendsServiceWapi wapi, FriendsServiceLocal local)
+    public FriendsServiceActive(IDataSourceActive active, FriendsServiceWapi wapi, FriendsServiceLocal local)
     {
         _active = active;
         _wapi = wapi;
         _local = local;
     }
 
-    private IFriendsService Current => _active.ActiveDataSource == MusicDataSource.WebApi
+    private IFriendsService Current => _active.ActiveDataSource == DataSource.WebApi
         ? _wapi
         : _local;
 

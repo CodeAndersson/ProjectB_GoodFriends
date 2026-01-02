@@ -2,14 +2,14 @@
 
 namespace Services;
 
-public class MusicServiceActive : IMusicServiceActive
+public class DataSourceActive : IDataSourceActive
 {
     //classic singleton lock pattern using an instance lock object
     private readonly object s_instanceLock = new();
 
     //allow datasource shift att application level, through service injected as singleton
-    private MusicDataSource _datasource;
-    public MusicDataSource ActiveDataSource 
+    private DataSource _datasource;
+    public DataSource ActiveDataSource 
     {
         get 
         {
@@ -27,12 +27,12 @@ public class MusicServiceActive : IMusicServiceActive
         }
     }
 
-    public MusicServiceActive(IConfiguration configuration)
+    public DataSourceActive(IConfiguration configuration)
     {
         //At startup, read from configuration to determine the active datasource
         _datasource = configuration["DataService:DataSource"] switch {
-            "WebApi" => MusicDataSource.WebApi,
-            _ => MusicDataSource.SQLDatabase
+            "WebApi" => DataSource.WebApi,
+            _ => DataSource.SQLDatabase
         };
     }
 }

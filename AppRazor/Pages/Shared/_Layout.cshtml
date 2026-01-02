@@ -8,7 +8,7 @@
 @inject IConfiguration configuration;
 @inject IOptions<EnvironmentOptions> envOptions;
 @inject UserManager<User> userManager;
-@inject Services.IMusicServiceActive dataSourceActive;
+@inject Services.IDataSourceActive dataSourceActive;
 @{}
 
 <html lang="en" data-bs-theme="auto">
@@ -138,7 +138,7 @@
                                 <span class="p-0 text-body-secondary small fw-light">@dataSourceActive.ActiveDataSource</span>
             </li>
             <li class="nav-item mb-2">
-                                @if (dataSourceActive.ActiveDataSource == Services.MusicDataSource.WebApi)
+                                @if (dataSourceActive.ActiveDataSource == Services.DataSource.WebApi)
                                 {
                                         <span class="p-0 text-body-secondary small fw-light">@configuration["DataService:WebApiBaseUri"]</span>
                                 }

@@ -8,7 +8,7 @@ namespace AppMvc.Models
     {
         //ModelBinding for Selections
         [BindProperty]
-        public MusicDataSource SelectedDataSource { get; set; }
+        public DataSource SelectedDataSource { get; set; }
     }
 }
 

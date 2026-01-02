@@ -5,18 +5,18 @@ namespace Services;
 
 public class QuotesServiceActive : IQuotesService
 {
-    private readonly IMusicServiceActive _active;
+    private readonly IDataSourceActive _active;
     private readonly QuotesServiceWapi _wapi;
     private readonly QuotesServiceLocal _local;
 
-    public QuotesServiceActive(IMusicServiceActive active, QuotesServiceWapi wapi, QuotesServiceLocal local)
+    public QuotesServiceActive(IDataSourceActive active, QuotesServiceWapi wapi, QuotesServiceLocal local)
     {
         _active = active;
         _wapi = wapi;
         _local = local;
     }
 
-    private IQuotesService Current => _active.ActiveDataSource == MusicDataSource.WebApi
+    private IQuotesService Current => _active.ActiveDataSource == DataSource.WebApi
         ? _wapi
         : _local;
 

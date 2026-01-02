@@ -8,13 +8,13 @@ namespace AppMvc.Controllers;
 public class HomeController : Controller
 {
     readonly ILogger<HomeController> _logger;
-    readonly IMusicServiceActive _dataSourceActive;
+    readonly IDataSourceActive _dataSourceActive;
     readonly AdminServiceWapi _wapi;
     readonly AdminServiceLocal _local;
 
     public HomeController(
         ILogger<HomeController> logger,
-        IMusicServiceActive dataSourceActive,
+        IDataSourceActive dataSourceActive,
         AdminServiceWapi wapi,
         AdminServiceLocal local)
     {

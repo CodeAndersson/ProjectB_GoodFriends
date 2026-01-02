@@ -7,6 +7,6 @@ namespace AppMvc.Models
     {
         public GstUsrInfoAllDto WebApiInfo { get; set; }
         public GstUsrInfoAllDto LocalInfo { get; set; }
-        public MusicDataSource ActiveDataSource { get; set; }
+        public DataSource ActiveDataSource { get; set; }
     }
 }

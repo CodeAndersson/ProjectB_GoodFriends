@@ -10,10 +10,10 @@ namespace AppMvc.Controllers;
 public class DataSourceController : Controller
 {
     private readonly ILogger<DataSourceController> _logger;
-    readonly IMusicServiceActive _service = null;
+    readonly IDataSourceActive _service = null;
 
     //Inject services just like in WebApi
-    public DataSourceController(IMusicServiceActive service, ILogger<DataSourceController> logger)
+    public DataSourceController(IDataSourceActive service, ILogger<DataSourceController> logger)
     {
         _service = service;
         _logger = logger;

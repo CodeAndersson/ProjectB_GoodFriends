@@ -7,16 +7,16 @@ namespace AppRazor.Pages
     {
         public Models.DTO.GstUsrInfoAllDto WebApiInfo { get; set; }
         public Models.DTO.GstUsrInfoAllDto LocalInfo { get; set; }
-        public Services.MusicDataSource ActiveDataSource { get; private set; }
+        public Services.DataSource ActiveDataSource { get; private set; }
 
         readonly ILogger<DataSourceInfoModel> _logger;
-        readonly Services.IMusicServiceActive _dataSourceActive;
+        readonly Services.IDataSourceActive _dataSourceActive;
         readonly Services.AdminServiceWapi _wapi;
         readonly Services.AdminServiceLocal _local;
 
         public DataSourceInfoModel(
             ILogger<DataSourceInfoModel> logger,
-            Services.IMusicServiceActive dataSourceActive,
+            Services.IDataSourceActive dataSourceActive,
             Services.AdminServiceWapi wapi,
             Services.AdminServiceLocal local)
         {

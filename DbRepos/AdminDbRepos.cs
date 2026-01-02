@@ -1,10 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Data.Common;
-using Microsoft.Data.SqlClient;
-using MySqlConnector;
-using Npgsql;
 
 using Seido.Utilities.SeedGenerator;
 using Models.DTO;
@@ -51,20 +46,101 @@ public class AdminDbRepos
         var fn = Path.GetFullPath(_seedSource);
         var seeder = new SeedGenerator(fn);
 
-        //get a list of music groups
-        var musicGroups = seeder.ItemsToList<MusicGroupDbM>(nrOfItems);
+        if (nrOfItems <= 0)
+            return await DbInfo();
 
-        //Set between 5 and 50 albums for each music groups
-        musicGroups.ForEach(mg => mg.AlbumsDbM = seeder.ItemsToList<AlbumDbM>(seeder.Next(2, 5)));
+        // Addresses: create a pool so multiple friends can share the same address
+        var nrAddresses = Math.Max(1, nrOfItems / 2);
+        var addresses = new List<AddressDbM>(capacity: nrAddresses);
+        var addressKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        //get a list of artists
-        var artists = seeder.ItemsToList<ArtistDbM>(100);
+        while (addresses.Count < nrAddresses)
+        {
+            var country = seeder.Country;
+            var city = seeder.City(country);
+            var street = seeder.StreetAddress(country);
+            var zip = seeder.ZipCode;
 
-        //Assign artists to Music groups
-        musicGroups.ForEach(mg => mg.ArtistsDbM = seeder.UniqueIndexPickedFromList<ArtistDbM>(seeder.Next(2, 5), artists));
+            var key = $"{street}|{zip}|{city}|{country}";
+            if (!addressKeys.Add(key))
+                continue;
 
-        //Note that all other tables are automatically set through csFriendDbM Navigation properties
-        _dbContext.MusicGroups.AddRange(musicGroups);
+            addresses.Add(new AddressDbM
+            {
+                AddressId = Guid.NewGuid(),
+                StreetAddress = street,
+                ZipCode = zip,
+                City = city,
+                Country = country,
+                Seeded = true
+            });
+        }
+
+        // Quotes: create a pool so quotes can be shared among friends
+        var nrQuotes = Math.Max(1, nrOfItems / 2);
+        var quotes = seeder.Quotes(nrQuotes)
+            .Select(q => new QuoteDbM
+            {
+                QuoteId = Guid.NewGuid(),
+                QuoteText = q.Quote,
+                Author = q.Author,
+                Seeded = true
+            })
+            .ToList();
+
+        var friends = new List<FriendDbM>(capacity: nrOfItems);
+        for (int i = 0; i < nrOfItems; i++)
+        {
+            var firstName = seeder.FirstName;
+            var lastName = seeder.LastName;
+
+            var friend = new FriendDbM
+            {
+                FriendId = Guid.NewGuid(),
+                FirstName = firstName,
+                LastName = lastName,
+                Email = seeder.Email(firstName, lastName),
+                Birthday = seeder.DateAndTime(fromYear: 1950, toYear: DateTime.Today.Year - 10),
+                Seeded = true
+            };
+
+            // Roughly half of friends get an address
+            if (addresses.Count > 0 && seeder.Bool)
+            {
+                var adr = addresses[seeder.Next(0, addresses.Count)];
+                friend.AddressDbM = adr;
+                friend.AddressId = adr.AddressId;
+            }
+
+            // 0-2 pets per friend
+            var nrPets = seeder.Next(0, 3);
+            for (int p = 0; p < nrPets; p++)
+            {
+                friend.PetsDbM.Add(new PetDbM
+                {
+                    PetId = Guid.NewGuid(),
+                    FriendId = friend.FriendId,
+                    FriendDbM = friend,
+                    Name = seeder.PetName,
+                    Kind = seeder.FromEnum<Models.Interfaces.AnimalKind>(),
+                    Mood = seeder.FromEnum<Models.Interfaces.AnimalMood>(),
+                    Seeded = true
+                });
+            }
+
+            // 0-3 quotes per friend
+            var nrFriendQuotes = seeder.Next(0, 4);
+            if (nrFriendQuotes > 0 && quotes.Count > 0)
+            {
+                friend.QuotesDbM = seeder.UniqueIndexPickedFromList(nrFriendQuotes, quotes);
+            }
+
+            friends.Add(friend);
+        }
+
+        _dbContext.Addresses.AddRange(addresses);
+        _dbContext.Quotes.AddRange(quotes);
+        _dbContext.Friends.AddRange(friends);
 
         await _dbContext.SaveChangesAsync();
         return await DbInfo();
@@ -72,92 +148,38 @@ public class AdminDbRepos
       
     public async Task<ResponseItemDto<GstUsrInfoAllDto>> RemoveSeedAsync(bool seeded)
     {
-        // Create parameters based on database provider
-        var connection = _dbContext.Database.GetDbConnection();
-        using var command = connection.CreateCommand();
-        command.CommandType = CommandType.StoredProcedure;
+        // Remove friends first (cascades to pets and join table)
+        var friendsToRemove = await _dbContext.Friends
+            .Where(f => f.Seeded == seeded)
+            .Include(f => f.PetsDbM)
+            .Include(f => f.QuotesDbM)
+            .ToListAsync();
 
-        List<DbParameter> parameters;
-        if (connection is MySqlConnection)
+        if (friendsToRemove.Count > 0)
         {
-            command.CommandText = "supusr_spDeleteAll";
-            parameters = new List<DbParameter>
-            {
-                new MySqlParameter("seededParam", seeded),
-                new MySqlParameter("nrMusicGroupsAffected", MySqlDbType.Int32) { Direction = ParameterDirection.Output },
-                new MySqlParameter("nrAlbumsAffected", MySqlDbType.Int32) { Direction = ParameterDirection.Output },
-                new MySqlParameter("nrArtistsAffected", MySqlDbType.Int32) { Direction = ParameterDirection.Output }
-            };
-        }
-        else if (connection is NpgsqlConnection)
-        {
-            // PostgreSQL parameters - call as function returning table
-            command.CommandText = "SELECT nrMusicGroupsAffected, nrAlbumsAffected, nrArtistsAffected FROM supusr.\"spDeleteAll\"(@seededParam)";
-            command.CommandType = CommandType.Text;
-            parameters =
-            [
-                new NpgsqlParameter("seededParam", seeded),
-                new NpgsqlParameter("nrMusicGroupsAffected", NpgsqlTypes.NpgsqlDbType.Integer) { Direction = ParameterDirection.Output },
-                new NpgsqlParameter("nrAlbumsAffected", NpgsqlTypes.NpgsqlDbType.Integer) { Direction = ParameterDirection.Output },
-                new NpgsqlParameter("nrArtistsAffected", NpgsqlTypes.NpgsqlDbType.Integer) { Direction = ParameterDirection.Output }
-            ];
-        }
-        else
-        {
-            // SQL Server parameters (default)
-            command.CommandText = "supusr.spDeleteAll";
-            parameters = new List<DbParameter>
-            {
-                new SqlParameter("seededParam", seeded),
-                new SqlParameter("nrMusicGroupsAffected", SqlDbType.Int) { Direction = ParameterDirection.Output },
-                new SqlParameter("nrAlbumsAffected", SqlDbType.Int) { Direction = ParameterDirection.Output },
-                new SqlParameter("nrArtistsAffected", SqlDbType.Int) { Direction = ParameterDirection.Output }
-            };
+            _dbContext.Friends.RemoveRange(friendsToRemove);
+            await _dbContext.SaveChangesAsync();
         }
 
-        command.Parameters.AddRange(parameters.ToArray());
+        // Remove orphaned quotes/addresses that match the seeded flag
+        var quotesToRemove = await _dbContext.Quotes
+            .Where(q => q.Seeded == seeded)
+            .Where(q => !q.FriendsDbM.Any())
+            .ToListAsync();
 
-        if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync();
+        if (quotesToRemove.Count > 0)
+            _dbContext.Quotes.RemoveRange(quotesToRemove);
 
-        if (connection is NpgsqlConnection)
-        {
-            // in postgresql, execute a procedure (a function) cannot return a dataset and have output parameters
-            // therefore I execute the command without expecting a result set
-            await command.ExecuteScalarAsync();
-        }
-        else
-        {
-            // Execute the stored procedure and get the result set
-            using var reader = await command.ExecuteReaderAsync();
+        var addressesToRemove = await _dbContext.Addresses
+            .Where(a => a.Seeded == seeded)
+            .Where(a => !a.FriendsDbM.Any())
+            .ToListAsync();
 
-            // map reader result into GstUsrInfoDbDto result_set
-            GstUsrInfoDbDto result_set = null;
-            if (reader.HasRows)
-            {
-                // Read the first result set which should be InfoDbView
-                await reader.ReadAsync();
+        if (addressesToRemove.Count > 0)
+            _dbContext.Addresses.RemoveRange(addressesToRemove);
 
-                result_set = new GstUsrInfoDbDto
-                {
-                    // Populate properties from the reader
-                    NrSeededMusicGroups = Convert.ToInt32(reader["NrSeededMusicGroups"]),
-                    NrUnseededMusicGroups = Convert.ToInt32(reader["NrUnseededMusicGroups"]),
-                    NrSeededAlbums = Convert.ToInt32(reader["NrSeededAlbums"]),
-                    NrUnseededAlbums = Convert.ToInt32(reader["NrUnseededAlbums"]),
-                    NrSeededArtists = Convert.ToInt32(reader["NrSeededArtists"]),
-                    NrUnseededArtists = Convert.ToInt32(reader["NrUnseededArtists"]),
-                };
-            }
-            await reader.CloseAsync();
-            // result_set can now be accessed - not used in this example
-        }
-
-
-        // Output parameters can now be accessed - not used in this example
-        int nrMusicGroupsAffected = (int)parameters.First(p => p.ParameterName == "nrMusicGroupsAffected").Value;
-        int nrAlbumsAffected = (int)parameters.First(p => p.ParameterName == "nrAlbumsAffected").Value;
-        int nrArtistsAffected = (int)parameters.First(p => p.ParameterName == "nrArtistsAffected").Value;
+        if (quotesToRemove.Count > 0 || addressesToRemove.Count > 0)
+            await _dbContext.SaveChangesAsync();
 
         return await DbInfo();
     }

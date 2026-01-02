@@ -5,7 +5,7 @@
 @using Configuration;
 @using Models.Authorization
 
-@inject Services.IMusicServiceActive musicServiceActive;
+@inject Services.IDataSourceActive dataSourceActive;
 @inject IConfiguration configuration;
 @inject IOptions<EnvironmentOptions> envOptions;
 @inject UserManager<User> userManager;
@@ -201,7 +201,7 @@
         <div class="col mb-4">
           <h6>Data</h6>
           <ul class="nav flex-column">
-            @if (musicServiceActive.ActiveDataSource ==  Services.MusicDataSource.SQLDatabase)
+            @if (dataSourceActive.ActiveDataSource ==  Services.DataSource.SQLDatabase)
             {
                 <li class="nav-item mb-2">
                     <span class="p-0 text-body-secondary small fw-light">Database</span>

@@ -30,11 +30,6 @@ public class MainDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<PetDbM> Pets { get; set; }
     public DbSet<QuoteDbM> Quotes { get; set; }
 
-    // Legacy template DbSets kept for compilation only. They are ignored in OnModelCreating.
-    public DbSet<MusicGroupDbM> MusicGroups { get; set; }
-    public DbSet<AlbumDbM> Albums { get; set; }
-    public DbSet<ArtistDbM> Artists { get; set; }
-
     //User for login
     //now created by Identity
     //public DbSet<UserDbM> Users { get; set; }
@@ -98,12 +93,6 @@ public class MainDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                     j.ToTable("FriendDbMQuoteDbM", "supusr");
                     j.HasKey(x => new { x.FriendsDbMFriendId, x.QuotesDbMQuoteId });
                 });
-        #endregion
-
-        #region Legacy template entities
-        modelBuilder.Ignore<MusicGroupDbM>();
-        modelBuilder.Ignore<AlbumDbM>();
-        modelBuilder.Ignore<ArtistDbM>();
         #endregion
 
         #region override modelbuilder

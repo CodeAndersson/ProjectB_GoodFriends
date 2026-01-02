@@ -11,7 +11,7 @@ public class FriendAuthorizationHandler : AuthorizationHandler<OperationAuthoriz
         OperationAuthorizationRequirement requirement,
         IFriend resource)
     {
-        // Same simple policy as MusicGroupAuthorizationHandler:
+        // Simple policy:
         // - Anonymous users can only Read
         // - Authenticated users can Create/Read/Edit/Delete
         if (!context.User.Identity?.IsAuthenticated ?? true)

@@ -2,14 +2,6 @@
 
 public class GstUsrInfoDbDto
 {
-    // Legacy/local-db counters (kept for DbRepos/migrations compatibility)
-    public int NrSeededMusicGroups { get; set; }
-    public int NrUnseededMusicGroups { get; set; }
-    public int NrSeededAlbums { get; set; }
-    public int NrUnseededAlbums { get; set; }
-    public int NrSeededArtists { get; set; }
-    public int NrUnseededArtists { get; set; }
-
     public int NrSeededFriends { get; set; }
     public int NrUnseededFriends { get; set; }
     public int NrFriendsWithAddress { get; set; }

@@ -5,18 +5,18 @@ namespace Services;
 
 public class AddressesServiceActive : IAddressesService
 {
-    private readonly IMusicServiceActive _active;
+    private readonly IDataSourceActive _active;
     private readonly AddressesServiceWapi _wapi;
     private readonly AddressesServiceLocal _local;
 
-    public AddressesServiceActive(IMusicServiceActive active, AddressesServiceWapi wapi, AddressesServiceLocal local)
+    public AddressesServiceActive(IDataSourceActive active, AddressesServiceWapi wapi, AddressesServiceLocal local)
     {
         _active = active;
         _wapi = wapi;
         _local = local;
     }
 
-    private IAddressesService Current => _active.ActiveDataSource == MusicDataSource.WebApi
+    private IAddressesService Current => _active.ActiveDataSource == DataSource.WebApi
         ? _wapi
         : _local;
 

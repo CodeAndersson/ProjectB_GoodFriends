@@ -136,16 +136,6 @@ namespace Seido.Utilities.SeedGenerator
         public string LatinSentence => LatinSentences(1).FirstOrDefault();
         #endregion
 
-        #region Music
-        public string MusicGroupName => "The " + _seeds.Music.GroupNames[this.Next(0, _seeds.Music.GroupNames.Count)]
-            + " " + _seeds.Music.GroupNames[this.Next(0, _seeds.Music.GroupNames.Count)];
-
-        public string MusicAlbumName => _seeds.Music.AlbumPrefix[this.Next(0, _seeds.Music.AlbumPrefix.Count)]
-            + " " + _seeds.Music.AlbumNames[this.Next(0, _seeds.Music.AlbumNames.Count)]
-            + " " + _seeds.Music.AlbumNames[this.Next(0, _seeds.Music.AlbumNames.Count)]
-            + " " + _seeds.Music.AlbumSuffix[this.Next(0, _seeds.Music.AlbumSuffix.Count)];
-        #endregion
-
         #region DateTime, bool and decimal
         public DateTime DateAndTime(int? fromYear = null, int? toYear = null)
         {
@@ -576,15 +566,6 @@ namespace Seido.Utilities.SeedGenerator
                 Domains = new SeedDomains
                 {
                     jsonDomainNames = "icloud.com, me.com, mac.com, hotmail.com, gmail.com"
-                },
-                Music = new SeedMusic
-                {
-                    jsonGroupNames = "Led, Zeppelin, Queen, Pink, Floyd, Creedence, Clearwater, Revival, " +
-                        "Arosmith, Who, AC/DC, Rolling, Stones, Eagles, Deep, Purple, Prince, Dylan",
-                    jsonAlbumNames = "Heaven, Rock, Moon, Cosmos, Walk, Hunky, Blue, Highway, " +
-                        "Satisfaction, California, Stairway, Purple, Senor",
-                    jsonAlbumPrefix = "A, The, One, The great, A wonderful, Let's rock with, Relaxing, Chill with, Dance with",
-                    jsonAlbumSuffix = "with friends, with love, with fire, and walking, being happy",
                 }
             };
         }
@@ -774,70 +755,6 @@ namespace Seido.Utilities.SeedGenerator
             [JsonIgnore]
             public List<string> Domains => _domainNames;
         }
-        class SeedMusic
-        {
-            #region Music towards json file
-            string _jsonGroupNames;
-            public string jsonGroupNames
-            {
-                get => _jsonGroupNames;
-                set
-                {
-                    _jsonGroupNames = value;
-                    _groupNames = _jsonGroupNames.Split(", ").ToList();
-                }
-            }
-
-            string _jsonAlbumNames;
-            public string jsonAlbumNames
-            {
-                get => _jsonAlbumNames;
-                set
-                {
-                    _jsonAlbumNames = value;
-                    _albumNames = _jsonAlbumNames.Split(", ").ToList();
-                }
-            }
-
-            string _jsonAlbumPrefix;
-            public string jsonAlbumPrefix
-            {
-                get => _jsonAlbumPrefix;
-                set
-                {
-                    _jsonAlbumPrefix = value;
-                    _albumPrefix = _jsonAlbumPrefix.Split(", ").ToList();
-                }
-            }
-
-            string _jsonAlbumSuffix;
-            public string jsonAlbumSuffix
-            {
-                get => _jsonAlbumSuffix;
-                set
-                {
-                    _jsonAlbumSuffix = value;
-                    _albumSuffix = _jsonAlbumSuffix.Split(", ").ToList();
-                }
-            }
-            #endregion
-
-            List<string> _groupNames;
-            [JsonIgnore]
-            public List<string> GroupNames => _groupNames;
-
-            List<string> _albumNames;
-            [JsonIgnore]
-            public List<string> AlbumNames => _albumNames;
-
-            List<string> _albumPrefix;
-            [JsonIgnore]
-            public List<string> AlbumPrefix => _albumPrefix;
-
-            List<string> _albumSuffix;
-            [JsonIgnore]
-            public List<string> AlbumSuffix => _albumSuffix;
-        }
 
         class SeedJsonContent
         {
@@ -846,7 +763,6 @@ namespace Seido.Utilities.SeedGenerator
             public List<SeedAddress> Addresses { get; set; } = new List<SeedAddress>();
             public SeedNames Names { get; set; } = new SeedNames();
             public SeedDomains Domains { get; set; } = new SeedDomains();
-            public SeedMusic Music { get; set; } = new SeedMusic();
 
 
             public string WriteFile(string FileName) => WriteFile(this, FileName);

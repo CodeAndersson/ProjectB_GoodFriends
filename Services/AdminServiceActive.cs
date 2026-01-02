@@ -5,13 +5,13 @@ namespace Services;
 
 public class AdminServiceActive : IAdminService
 {
-    private readonly IMusicServiceActive _active;
+    private readonly IDataSourceActive _active;
     private readonly AdminServiceWapi _wapi;
     private readonly AdminServiceLocal _local;
     private readonly ILogger<AdminServiceActive> _logger;
 
     public AdminServiceActive(
-        IMusicServiceActive active,
+        IDataSourceActive active,
         AdminServiceWapi wapi,
         AdminServiceLocal local,
         ILogger<AdminServiceActive> logger)
@@ -22,7 +22,7 @@ public class AdminServiceActive : IAdminService
         _logger = logger;
     }
 
-    private IAdminService Current => _active.ActiveDataSource == MusicDataSource.WebApi
+    private IAdminService Current => _active.ActiveDataSource == DataSource.WebApi
         ? _wapi
         : _local;
 
@@ -31,7 +31,7 @@ public class AdminServiceActive : IAdminService
 
     public Task<ResponseItemDto<GstUsrInfoAllDto>> SeedAsync(int nrOfItems)
     {
-        if (_active.ActiveDataSource == MusicDataSource.WebApi)
+        if (_active.ActiveDataSource == DataSource.WebApi)
         {
             _logger.LogWarning("Seeding is not supported for Friends WebApi; seeding local in-memory requires SQLDatabase selection.");
             return _wapi.GuestInfoAsync();
@@ -42,7 +42,7 @@ public class AdminServiceActive : IAdminService
 
     public Task<ResponseItemDto<GstUsrInfoAllDto>> RemoveSeedAsync(bool seeded)
     {
-        if (_active.ActiveDataSource == MusicDataSource.WebApi)
+        if (_active.ActiveDataSource == DataSource.WebApi)
         {
             _logger.LogWarning("Seed removal is not supported for Friends WebApi; clear local in-memory requires SQLDatabase selection.");
             return _wapi.GuestInfoAsync();

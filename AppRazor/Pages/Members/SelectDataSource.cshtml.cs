@@ -7,12 +7,12 @@ namespace AppRazor.Pages
 {
     public class SelectDataSourceModel : PageModel
     {
-        readonly IMusicServiceActive _service = null;
+        readonly IDataSourceActive _service = null;
         readonly ILogger<SelectDataSourceModel> _logger = null;
 
         //ModelBinding for Selections
         [BindProperty]
-        public MusicDataSource SelectedDataSource { get; set; }
+        public DataSource SelectedDataSource { get; set; }
 
         public IActionResult OnGet()
         {
@@ -25,7 +25,7 @@ namespace AppRazor.Pages
             return Page();
         }
 
-        public SelectDataSourceModel(IMusicServiceActive service, ILogger<SelectDataSourceModel> logger)
+        public SelectDataSourceModel(IDataSourceActive service, ILogger<SelectDataSourceModel> logger)
         {
             _service = service;
             _logger = logger;
