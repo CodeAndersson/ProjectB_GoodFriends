@@ -25,7 +25,7 @@ public class SeedController : Controller
         var info = await _admin_service.GuestInfoAsync();
 
         //Create the viewModel
-        var vm = new SeedViewModel() { NrOfGroups = info.Item.Db.NrSeededMusicGroups + info.Item.Db.NrUnseededMusicGroups };
+        var vm = new SeedViewModel() { NrOfFriends = info.Item.Db.NrSeededFriends + info.Item.Db.NrUnseededFriends };
 
         //Render the View
         return View("Seed", vm);
@@ -44,7 +44,7 @@ public class SeedController : Controller
             }
 
             await _admin_service.SeedAsync(vm.NrOfItemsToSeed);
-            return Redirect($"~/Group/ListOfGroups");
+            return RedirectToAction(nameof(Seed));
         }
 
         return View(vm);

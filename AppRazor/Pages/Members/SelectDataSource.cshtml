@@ -6,11 +6,11 @@
 }
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @attribute [IgnoreAntiforgeryToken]
-<!-- Page list-of-quotes -->
-<div class="container px-4 py-4" id="list-of-quotes">
+<!-- Page select-data-source -->
+<div class="container px-4 py-4" id="select-data-source">
     <h2 class="pb-2 border-bottom">Select source data</h2>
 
-    <p>You can select to read the data directly from a database or from a WebApi. At the page footer you see the currently active datasource</p>
+    <p>You can select to read the Friends data either from a local database or from the Friends WebApi. The footer shows the currently active datasource.</p>
     <form class="needs-validation" method="post" novalidate>
         <div class="row mb-2 text-center">
             <div class="col-md-10 themed-grid-col">

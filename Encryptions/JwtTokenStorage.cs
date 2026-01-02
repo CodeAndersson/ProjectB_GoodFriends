@@ -18,6 +18,11 @@ public static class JwtTokenStorage
     /// <returns>AuthenticationProperties with the JWT token stored</returns>
     private static AuthenticationProperties CreateAuthenticationPropertiesWithToken(JwtToken jwtToken, bool isPersistent)
     {
+        if (jwtToken is null)
+            throw new ArgumentNullException(nameof(jwtToken), "JWT token was null. WebAPI login likely failed or response was not parsed correctly.");
+        if (string.IsNullOrWhiteSpace(jwtToken.EncryptedToken))
+            throw new ArgumentException("JWT token was missing EncryptedToken.", nameof(jwtToken));
+
         var authProperties = new AuthenticationProperties
         {
             IsPersistent = isPersistent

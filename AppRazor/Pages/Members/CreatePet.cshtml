@@ -1,0 +1,41 @@
+@page
+@model AppRazor.Pages.CreatePetModel
+@{
+    ViewData["Title"] = "Add pet";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@attribute [IgnoreAntiforgeryToken]
+
+<div class="container px-4 py-4" id="create-pet">
+    <h2 class="pb-2 border-bottom">Add pet</h2>
+
+    <form class="needs-validation" method="post" novalidate>
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Name</label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Kind</label>
+                <select asp-for="Input.Kind" class="form-select" asp-items="Html.GetEnumSelectList<Models.Interfaces.AnimalKind>()"></select>
+                <span asp-validation-for="Input.Kind" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Mood</label>
+                <select asp-for="Input.Mood" class="form-select" asp-items="Html.GetEnumSelectList<Models.Interfaces.AnimalMood>()"></select>
+                <span asp-validation-for="Input.Mood" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg my-4" type="submit">Save</button>
+        <a class="btn btn-secondary btn-lg my-4" href="~/Members/ViewFriend?id=@Model.FriendId">Cancel</a>
+    </form>
+</div>
+
+@section script
+{
+    <partial name="_ValidationScriptsPartial" />
+}

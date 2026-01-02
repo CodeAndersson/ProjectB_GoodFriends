@@ -2,39 +2,82 @@
 @model AppRazor.Pages.DataSourceInfoModel
 @{
     ViewData["Title"] = "Home";
+    var wapiDb = Model.WebApiInfo?.Db;
+    var localDb = Model.LocalInfo?.Db;
 }
 <!-- Page web-api-info -->
 <div class="container px-4 py-4" id="webapi-info">
     <h2 class="pb-2 border-bottom">Data source information</h2>
-    <p>Below you see an overview of the content in the Music data source (either database or WebApi). Click on the link to see details. </p>
+    <p>Overview of Friends content in both data sources.</p>
+    <p class="small text-body-secondary">Active datasource (used by Friends pages): @Model.ActiveDataSource</p>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 py-5">
-    <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#boombox"/></svg>
-        <div>
-        <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Music groups</h3>
-        <p>@(Model.Info.Db.NrSeededMusicGroups) seeded music groups</p>
-        <p>@(Model.Info.Db.NrUnseededMusicGroups) unseeded music groups</p>
-        <a href="~/Members/ListOfGroups" class="btn btn-primary">
-            See details
-        </a>    
+    <div class="row row-cols-1 row-cols-lg-2 align-items-stretch g-4 py-5">
+        <div class="col">
+            <h3 class="fw-bold mb-3 fs-4 text-body-emphasis">WebApi</h3>
+            <p class="small text-body-secondary">Note: Friends WebApi is shared remote data; seeding from this app is not supported.</p>
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-head-col">Entity</div>
+                <div class="col-md-3 themed-grid-head-col">Seeded</div>
+                <div class="col-md-3 themed-grid-head-col">Unseeded</div>
+            </div>
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Friends</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrSeededFriends ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrUnseededFriends ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Addresses</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrSeededAddresses ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrUnseededAddresses ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Pets</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrSeededPets ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrUnseededPets ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Quotes</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrSeededQuotes ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(wapiDb?.NrUnseededQuotes ?? 0)</div>
+            </div>
+
+            <a href="~/Members/ListOfFriends" class="btn btn-primary mt-2">See details</a>
+        </div>
+
+        <div class="col">
+            <h3 class="fw-bold mb-3 fs-4 text-body-emphasis">Local (in-memory)</h3>
+            <p class="small text-body-secondary">This datasource supports seeding from the Seed page when SQLDatabase is selected.</p>
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-head-col">Entity</div>
+                <div class="col-md-3 themed-grid-head-col">Seeded</div>
+                <div class="col-md-3 themed-grid-head-col">Unseeded</div>
+            </div>
+
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Friends</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrSeededFriends ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrUnseededFriends ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Addresses</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrSeededAddresses ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrUnseededAddresses ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Pets</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrSeededPets ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrUnseededPets ?? 0)</div>
+            </div>
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">Quotes</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrSeededQuotes ?? 0)</div>
+                <div class="col-md-3 themed-grid-col">@(localDb?.NrUnseededQuotes ?? 0)</div>
+            </div>
+
+            <a href="~/Members/Seed" class="btn btn-outline-success mt-2">Seed local data</a>
         </div>
     </div>
-    <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#album"/></svg>
-        <div>
-        <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Albums</h3>
-        <p>@(Model.Info.Db.NrSeededAlbums) seeded albums</p>
-        <p>@(Model.Info.Db.NrUnseededAlbums) unseeded albums</p>
-        </div>
-    </div>
-    <div class="col d-flex align-items-start">
-        <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#artist"/></svg>
-        <div>
-        <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Artists</h3>
-        <p>@(Model.Info.Db.NrSeededArtists) seeded artists</p>
-        <p>@(Model.Info.Db.NrUnseededArtists) unseeded artists</p>
-    </div>
-    </div>
-</div>
 

@@ -145,7 +145,7 @@ namespace AppMvc.Controllers
                     var wapiResponse = await _wapiLoginService.LoginUserAsync(new LoginCredentialsDto
                     {
                         UserNameOrEmail = "dbo1",
-                        UserPassword = "dbo1"
+                        Password = "dbo1"
                     });
                     _logger.LogInformation("WebAPI authentication succeeded for user {Email}", user.Email);
 
@@ -207,7 +207,7 @@ namespace AppMvc.Controllers
                 var wapiResponse = await _wapiLoginService.LoginUserAsync(new LoginCredentialsDto
                 {
                     UserNameOrEmail = "dbo1",
-                    UserPassword = "dbo1"
+                    Password = "dbo1"
                 });
                 _logger.LogInformation("WebAPI authentication succeeded for user {Email}", user.Email);
 

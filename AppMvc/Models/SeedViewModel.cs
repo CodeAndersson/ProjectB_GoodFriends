@@ -6,7 +6,7 @@ namespace AppMvc.Models
 	public class SeedViewModel
     {
         [BindProperty]
-        public int NrOfGroups { get; set; }
+        public int NrOfFriends { get; set; }
 
         [BindProperty]
         [Required(ErrorMessage = "You must enter nr of items to seed")]

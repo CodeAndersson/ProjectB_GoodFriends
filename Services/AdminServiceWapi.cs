@@ -16,21 +16,22 @@ public class AdminServiceWapi : IAdminService
     private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
     {
         Converters = {
-            new AbstractConverter<MusicGroup, IMusicGroup>(),
-            new AbstractConverter<Album, IAlbum>(),
-            new AbstractConverter<Artist, IArtist>()
+            new AbstractConverter<Friend, IFriend>(),
+            new AbstractConverter<Address, IAddress>(),
+            new AbstractConverter<Pet, IPet>(),
+            new AbstractConverter<Quote, IQuote>()
         },
     };
 
     public AdminServiceWapi(IHttpClientFactory httpClientFactory, ILogger<AdminServiceWapi> logger)
     {
         _logger = logger;
-        _httpClient = httpClientFactory.CreateClient(name: "MusicWebApi");
+        _httpClient = httpClientFactory.CreateClient(name: "GuestWebApi");
     }
     
     public async Task<ResponseItemDto<GstUsrInfoAllDto>> GuestInfoAsync()
     {
-        string uri = $"guest/info";
+        string uri = $"Guest/Info";
 
         //Send the HTTP Message and await the repsonse
         HttpResponseMessage response = await _httpClient.GetAsync(uri);
@@ -40,40 +41,29 @@ public class AdminServiceWapi : IAdminService
 
         //Get the response body
         string s = await response.Content.ReadAsStringAsync();
-        var info = JsonConvert.DeserializeObject<ResponseItemDto<GstUsrInfoAllDto>>(s);
-        return info;
+
+        // Friends WebApi often wraps results as { "item": { ... } }
+        var wrapped = JsonConvert.DeserializeObject<ResponseItemDto<GstUsrInfoAllDto>>(s, _jsonSettings);
+        if (wrapped?.Item != null)
+        {
+            return wrapped;
+        }
+
+        // Fallback for older/unwrapped payloads
+        var info = JsonConvert.DeserializeObject<GstUsrInfoAllDto>(s, _jsonSettings);
+        return new ResponseItemDto<GstUsrInfoAllDto>() { Item = info };
     }
 
 
     public async Task<ResponseItemDto<GstUsrInfoAllDto>> SeedAsync(int nrOfItems)
     {
-        string uri = $"admin/seed?count={nrOfItems}";
-
-        //Send the HTTP Message and await the repsonse
-        HttpResponseMessage response = await _httpClient.GetAsync(uri);
-
-        //Throw an exception if the response is not successful
-        await response.EnsureSuccessStatusMessage();
-
-        //Get the response body
-        string s = await response.Content.ReadAsStringAsync();
-        var info = JsonConvert.DeserializeObject<ResponseItemDto<GstUsrInfoAllDto>>(s);
-        return info;
+        _logger.LogWarning("Friends WebAPI does not support seeding via API. SeedAsync is a no-op.");
+        return await GuestInfoAsync();
     }
     public async Task<ResponseItemDto<GstUsrInfoAllDto>> RemoveSeedAsync(bool seeded)
     {
-        string uri = $"admin/removeseed?seeded={seeded}";
-
-        //Send the HTTP Message and await the repsonse
-        HttpResponseMessage response = await _httpClient.GetAsync(uri);
-
-        //Throw an exception if the response is not successful
-        await response.EnsureSuccessStatusMessage();
-
-        //Get the response body
-        string s = await response.Content.ReadAsStringAsync();
-        var info = JsonConvert.DeserializeObject<ResponseItemDto<GstUsrInfoAllDto>>(s);
-        return info;
+        _logger.LogWarning("Friends WebAPI does not support seed removal via API. RemoveSeedAsync is a no-op.");
+        return await GuestInfoAsync();
     }
 
     public Task<ResponseItemDto<UsrInfoDto>> SeedUsersAsync(int nrOfUsers, int nrOfSuperUsers, int nrOfSysAdmin)

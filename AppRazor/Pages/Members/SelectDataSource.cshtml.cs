@@ -8,7 +8,7 @@ namespace AppRazor.Pages
     public class SelectDataSourceModel : PageModel
     {
         readonly IMusicServiceActive _service = null;
-        readonly ILogger<ListOfGroupsModel> _logger = null;
+        readonly ILogger<SelectDataSourceModel> _logger = null;
 
         //ModelBinding for Selections
         [BindProperty]
@@ -25,7 +25,7 @@ namespace AppRazor.Pages
             return Page();
         }
 
-        public SelectDataSourceModel(IMusicServiceActive service, ILogger<ListOfGroupsModel> logger)
+        public SelectDataSourceModel(IMusicServiceActive service, ILogger<SelectDataSourceModel> logger)
         {
             _service = service;
             _logger = logger;

@@ -43,7 +43,7 @@ public class LoginDbRepos
 
                 // MySQL parameters
                 userNameParam = new MySqlParameter("UserNameOrEmail", usrCreds.UserNameOrEmail);
-                userPasswordParam = new MySqlParameter("UserPassword", _encryptions.EncryptPasswordToBase64(usrCreds.UserPassword));
+                userPasswordParam = new MySqlParameter("UserPassword", _encryptions.EncryptPasswordToBase64(usrCreds.Password));
                 userIdParam = new MySqlParameter("UserId", MySqlDbType.Guid) { Direction = ParameterDirection.Output };
                 userNameOutParam = new MySqlParameter("UserName", MySqlDbType.VarChar, 100) { Direction = ParameterDirection.Output };
                 userRoleParam = new MySqlParameter("UserRole", MySqlDbType.VarChar, 100) { Direction = ParameterDirection.Output };
@@ -55,7 +55,7 @@ public class LoginDbRepos
 
                 // PostgreSQL parameters
                 userNameParam = new NpgsqlParameter("usernameoremail", usrCreds.UserNameOrEmail);
-                userPasswordParam = new NpgsqlParameter("userpasswordhash", _encryptions.EncryptPasswordToBase64(usrCreds.UserPassword));
+                userPasswordParam = new NpgsqlParameter("userpasswordhash", _encryptions.EncryptPasswordToBase64(usrCreds.Password));
                 userIdParam = new NpgsqlParameter("userid", NpgsqlTypes.NpgsqlDbType.Uuid) { Direction = ParameterDirection.Output };
                 userNameOutParam = new NpgsqlParameter("username", NpgsqlTypes.NpgsqlDbType.Varchar, 100) { Direction = ParameterDirection.Output };
                 userRoleParam = new NpgsqlParameter("userrole", NpgsqlTypes.NpgsqlDbType.Varchar, 100) { Direction = ParameterDirection.Output };
@@ -66,7 +66,7 @@ public class LoginDbRepos
 
                 // SQL Server parameters (default)
                 userNameParam = new SqlParameter("UserNameOrEmail", usrCreds.UserNameOrEmail);
-                userPasswordParam = new SqlParameter("UserPassword", _encryptions.EncryptPasswordToBase64(usrCreds.UserPassword));
+                userPasswordParam = new SqlParameter("UserPassword", _encryptions.EncryptPasswordToBase64(usrCreds.Password));
                 userIdParam = new SqlParameter("UserId", SqlDbType.UniqueIdentifier) { Direction = ParameterDirection.Output };
                 userNameOutParam = new SqlParameter("UserName", SqlDbType.VarChar, 100) { Direction = ParameterDirection.Output };
                 userRoleParam = new SqlParameter("UserRole", SqlDbType.VarChar, 100) { Direction = ParameterDirection.Output };

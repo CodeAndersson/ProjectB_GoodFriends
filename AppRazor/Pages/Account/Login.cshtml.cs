@@ -77,21 +77,50 @@ namespace AppRazor.Pages.Account
                 var user = await _signInManager.UserManager.FindByEmailAsync(LoginCreds.Email);
                 _logger.LogInformation("User {Email} logged in successfully", user.Email);
 
-                // Authenticate with WebAPI to obtain JWT token
-                var wapiResponse = await _wapiLoginService.LoginUserAsync(new LoginCredentialsDto
+                try
                 {
-                    UserNameOrEmail = "dbo1",
-                    UserPassword = "dbo1"
-                });
-                _logger.LogInformation("WebAPI authentication succeeded for user {Email}", user.Email);
+                    // Authenticate with WebAPI to obtain JWT token
+                    var wapiResponse = await _wapiLoginService.LoginUserAsync(new LoginCredentialsDto
+                    {
+                        UserNameOrEmail = "dbo1",
+                        Password = "dbo1"
+                    });
 
-                // Store the JWT token in the authentication properties
-                await JwtTokenStorage.StoreTokenAsync(
-                    _signInManager,
-                    user,
-                    LoginCreds.RememberMe,
-                    wapiResponse.Item.JwtToken);
-                _logger.LogInformation("WebAPI token stored for user {Email}", user.Email);
+                    if (wapiResponse?.Item?.JwtToken is null)
+                    {
+                        ValidationResult = new ModelValidationResult(true, new List<string>()
+                        {
+                            "Could not obtain JWT token from Friends WebAPI. Check network/DNS and response format."
+                        }, null);
+                        return Page();
+                    }
+
+                    // Store the JWT token in the authentication properties
+                    await JwtTokenStorage.StoreTokenAsync(
+                        _signInManager,
+                        user,
+                        LoginCreds.RememberMe,
+                        wapiResponse.Item.JwtToken);
+                    _logger.LogInformation("WebAPI token stored for user {Email}", user.Email);
+                }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogError(ex, "Friends WebAPI login call failed");
+                    ValidationResult = new ModelValidationResult(true, new List<string>()
+                    {
+                        "Could not reach Friends WebAPI (DNS/network). Try again when online or check DNS/proxy."
+                    }, null);
+                    return Page();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Storing JWT token failed");
+                    ValidationResult = new ModelValidationResult(true, new List<string>()
+                    {
+                        "Login succeeded locally, but storing WebAPI token failed."
+                    }, null);
+                    return Page();
+                }
 
                 return LocalRedirect("/");
             }

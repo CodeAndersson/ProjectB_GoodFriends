@@ -1,0 +1,29 @@
+@page
+@model AppRazor.Pages.FriendsByCityInCountryModel
+@{
+    ViewData["Title"] = "Friends in country";
+}
+
+<div class="container px-4 py-4" id="friends-by-city">
+    <h2 class="pb-2 border-bottom">Friends and pets in cities of @Model.Country</h2>
+
+    <div class="row mb-2 text-center">
+        <div class="col-md-6 themed-grid-head-col">City</div>
+        <div class="col-md-3 themed-grid-head-col">#Friends</div>
+        <div class="col-md-3 themed-grid-head-col">#Pets</div>
+    </div>
+
+    @if (Model.Cities is not null)
+    {
+        foreach (var c in Model.Cities)
+        {
+            <div class="row mb-2 text-center">
+                <div class="col-md-6 themed-grid-col">
+                    <a href="~/Members/ListOfFriends?Filter=@(Model.Country + " " + c.City)">@c.City</a>
+                </div>
+                <div class="col-md-3 themed-grid-col">@c.NrFriends</div>
+                <div class="col-md-3 themed-grid-col">@c.NrPets</div>
+            </div>
+        }
+    }
+</div>

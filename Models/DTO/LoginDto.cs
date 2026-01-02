@@ -1,11 +1,15 @@
 ﻿using Encryption;
+using Newtonsoft.Json;
 
 namespace Models.DTO;
 
 public class LoginCredentialsDto
 {
-    public string UserNameOrEmail { get; set; } 
-    public string UserPassword { get; set; }
+    [JsonProperty("userNameOrEmail")]
+    public string UserNameOrEmail { get; set; }
+
+    [JsonProperty("password")]
+    public string Password { get; set; }
 }
 
 public class LoginUserSessionDto

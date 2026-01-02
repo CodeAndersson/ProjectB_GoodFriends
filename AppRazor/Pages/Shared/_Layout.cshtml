@@ -3,12 +3,12 @@
 @using Microsoft.AspNetCore.Identity;
 @using Microsoft.Extensions.Options
 @using Models;
-@using Models.Authorization;
+@using Models.Authorization
 @using Configuration;
-@inject Services.IMusicServiceActive musicServiceActive;
 @inject IConfiguration configuration;
 @inject IOptions<EnvironmentOptions> envOptions;
 @inject UserManager<User> userManager;
+@inject Services.IMusicServiceActive dataSourceActive;
 @{}
 
 <html lang="en" data-bs-theme="auto">
@@ -75,13 +75,14 @@
 
             <ul class="nav nav-pills">
                 <li class="nav-item"><a href="~/Index" class="nav-link" aria-current="page">Home</a></li>
-                <li class="nav-item"><a href="~/Members/ListOfGroups" class="nav-link">Famous groups</a></li>
+                <li class="nav-item"><a href="~/Members/ListOfFriends" class="nav-link">Friends</a></li>
                 <li class="nav-item"><a href="~/DataSourceInfo" class="nav-link">Data source info</a></li> 
 
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <li class="nav-item"><a href="~/Members/SelectDataSource" class="nav-link">Select datasource</a></li>
+                    <li class="nav-item"><a href="~/Members/FriendsByCountry" class="nav-link">By country</a></li>
                     <li class="nav-item"><a href="~/Members/Seed" class="nav-link">Seed</a></li>
+                    <li class="nav-item"><a href="~/Members/SelectDataSource" class="nav-link">Select datasource</a></li>
                 }
 
                 @if (!User.Identity.IsAuthenticated)
@@ -133,27 +134,19 @@
         <div class="col mb-4">
           <h6>Data</h6>
           <ul class="nav flex-column">
-            @if (musicServiceActive.ActiveDataSource ==  Services.MusicDataSource.SQLDatabase)
-            {
-                <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">Database</span>
-                </li>
-                <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">@envOptions.Value.DatabaseInfo.DataConnectionTag</span>
-                </li>
-                <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">@envOptions.Value.DatabaseInfo.DefaultDataUser</span>
-                </li>
-            }
-            else
-            {   
-                <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">WebApi</span>
-                </li>
-                <li class="nav-item mb-2">
-                    <span class="p-0 text-body-secondary small fw-light">@configuration["DataService:WebApiBaseUri"]</span>
-                </li>
-            }
+            <li class="nav-item mb-2">
+                                <span class="p-0 text-body-secondary small fw-light">@dataSourceActive.ActiveDataSource</span>
+            </li>
+            <li class="nav-item mb-2">
+                                @if (dataSourceActive.ActiveDataSource == Services.MusicDataSource.WebApi)
+                                {
+                                        <span class="p-0 text-body-secondary small fw-light">@configuration["DataService:WebApiBaseUri"]</span>
+                                }
+                                else
+                                {
+                                        <span class="p-0 text-body-secondary small fw-light">Local database</span>
+                                }
+            </li>
           </ul>
         </div>
       </footer>

@@ -4,9 +4,9 @@ using Services;
 using Configuration.Extensions;
 using DbContext.Extensions;
 using DbRepos;
-using Models.Authorization;
 using Encryption.Extensions;
 using Encryption;
+using Models.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +49,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow both HTTP and HTTPS in development
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.Name = "GoodMusicAuth";
+    options.Cookie.Name = "GoodFriendsAuth";
 
     // Enable saving tokens in the cookie - required for httpContext.GetTokenAsync to work
     options.Events.OnSigningIn = context =>
@@ -59,11 +59,19 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-#region Injecting a dependency service to read MusicWebApi
+// Authorization handlers (resource-based)
+builder.Services.AddSingleton<IAuthorizationHandler, FriendAuthorizationHandler>();
+
+// Data source selector (WebApi vs local DB)
+builder.Services.AddSingleton<IMusicServiceActive, MusicServiceActive>();
+
+#region Injecting a dependency service to read FriendsWebApi
 builder.Services.AddTransient<JwtTokenHandler>();
-builder.Services.AddHttpClient(name: "MusicWebApi", configureClient: options =>
+var webApiBaseUri = builder.Configuration["DataService:WebApiBaseUri"];
+
+builder.Services.AddHttpClient(name: "FriendsWebApi", configureClient: options =>
 {
-    options.BaseAddress = new Uri(builder.Configuration["DataService:WebApiBaseUri"]);
+    options.BaseAddress = new Uri(webApiBaseUri);
     options.DefaultRequestHeaders.Accept.Add(
         new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(
             mediaType: "application/json",
@@ -71,44 +79,42 @@ builder.Services.AddHttpClient(name: "MusicWebApi", configureClient: options =>
 })
 .AddHttpMessageHandler<JwtTokenHandler>();
 
-//Model Authorization
-builder.Services.AddSingleton<IAuthorizationHandler, MusicGroupAuthorizationHandler>();
+builder.Services.AddHttpClient(name: "GuestWebApi", configureClient: options =>
+{
+    options.BaseAddress = new Uri(webApiBaseUri);
+    options.DefaultRequestHeaders.Accept.Add(
+        new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(
+            mediaType: "application/json",
+            quality: 1.0));
+});
 
 //Used for Identity email verification
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailService>();
 
-//Inject DbRepos and Services
-builder.Services.AddScoped<AdminDbRepos>();
-builder.Services.AddScoped<MusicGroupsDbRepos>();
-builder.Services.AddScoped<AlbumsDbRepos>();
-builder.Services.AddScoped<ArtistsDbRepos>();
-
+//Inject Services
 builder.Services.AddScoped<ILoginService, LoginServiceWapi>();
-builder.Services.AddSingleton<IMusicServiceActive, MusicServiceActive>();
 
-//Inject a Service based on active data source, 
-//E.g. DI will resolve either AdminServiceWapi or AdminServiceDb based on the active data source 
-//and inject it wherever IAdminService is required
-builder.Services.AddScoped<IAdminService> (sp => sp.GetService<IMusicServiceActive> ().ActiveDataSource switch
-    {
-        MusicDataSource.WebApi => ActivatorUtilities.CreateInstance<AdminServiceWapi>(sp),
-        _ => ActivatorUtilities.CreateInstance<AdminServiceDb>(sp),
-    });
-builder.Services.AddScoped<IMusicGroupsService> (sp => sp.GetService<IMusicServiceActive> ().ActiveDataSource switch
-    {
-        MusicDataSource.WebApi => ActivatorUtilities.CreateInstance<MusicGroupsServiceWapi>(sp),
-        _ => ActivatorUtilities.CreateInstance<MusicGroupsServiceDb>(sp),
-    });
-builder.Services.AddScoped<IAlbumsService> (sp => sp.GetService<IMusicServiceActive> ().ActiveDataSource switch
-    {
-        MusicDataSource.WebApi => ActivatorUtilities.CreateInstance<AlbumsServiceWapi>(sp),
-        _ => ActivatorUtilities.CreateInstance<AlbumsServiceDb>(sp),
-    });
-builder.Services.AddScoped<IArtistsService> (sp => sp.GetService<IMusicServiceActive> ().ActiveDataSource switch
-    {
-        MusicDataSource.WebApi => ActivatorUtilities.CreateInstance<ArtistsServiceWapi>(sp),
-        _ => ActivatorUtilities.CreateInstance<ArtistsServiceDb>(sp),
-    });
+// Local in-memory datasource services
+builder.Services.AddSingleton<Services.InMemory.InMemoryFriendsStore>();
+builder.Services.AddScoped<AdminServiceLocal>();
+builder.Services.AddScoped<FriendsServiceLocal>();
+builder.Services.AddScoped<AddressesServiceLocal>();
+builder.Services.AddScoped<PetsServiceLocal>();
+builder.Services.AddScoped<QuotesServiceLocal>();
+
+// WebApi datasource services (concrete types so pages can request them directly)
+builder.Services.AddScoped<AdminServiceWapi>();
+builder.Services.AddScoped<FriendsServiceWapi>();
+builder.Services.AddScoped<AddressesServiceWapi>();
+builder.Services.AddScoped<PetsServiceWapi>();
+builder.Services.AddScoped<QuotesServiceWapi>();
+
+// Active switchers (selected via SelectDataSource)
+builder.Services.AddScoped<IAdminService, AdminServiceActive>();
+builder.Services.AddScoped<IFriendsService, FriendsServiceActive>();
+builder.Services.AddScoped<IAddressesService, AddressesServiceActive>();
+builder.Services.AddScoped<IPetsService, PetsServiceActive>();
+builder.Services.AddScoped<IQuotesService, QuotesServiceActive>();
 #endregion
 
 var app = builder.Build();

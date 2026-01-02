@@ -5,20 +5,66 @@ namespace AppRazor.Pages
 {
 	public class DataSourceInfoModel : PageModel
     {
-        public Models.DTO.GstUsrInfoAllDto Info { get; set; }
+        public Models.DTO.GstUsrInfoAllDto WebApiInfo { get; set; }
+        public Models.DTO.GstUsrInfoAllDto LocalInfo { get; set; }
+        public Services.MusicDataSource ActiveDataSource { get; private set; }
 
         readonly ILogger<DataSourceInfoModel> _logger;
-        readonly IAdminService _service = null;
+        readonly Services.IMusicServiceActive _dataSourceActive;
+        readonly Services.AdminServiceWapi _wapi;
+        readonly Services.AdminServiceLocal _local;
 
-        public DataSourceInfoModel(ILogger<DataSourceInfoModel> logger, IAdminService service)
+        public DataSourceInfoModel(
+            ILogger<DataSourceInfoModel> logger,
+            Services.IMusicServiceActive dataSourceActive,
+            Services.AdminServiceWapi wapi,
+            Services.AdminServiceLocal local)
         {
             _logger = logger;
-            _service = service;
+            _dataSourceActive = dataSourceActive;
+            _wapi = wapi;
+            _local = local;
         }
 
         public async Task<IActionResult> OnGet()
         {
-            Info = (await _service.GuestInfoAsync()).Item;
+            ActiveDataSource = _dataSourceActive.ActiveDataSource;
+
+            try
+            {
+                var wapiResult = await _wapi.GuestInfoAsync();
+                WebApiInfo = wapiResult?.Item;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load datasource info from WebApi");
+                WebApiInfo = null;
+            }
+
+            try
+            {
+                var localResult = await _local.GuestInfoAsync();
+                LocalInfo = localResult?.Item;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load datasource info from Local in-memory store");
+                LocalInfo = null;
+            }
+
+            // Ensure the view never crashes on nulls
+            WebApiInfo ??= new Models.DTO.GstUsrInfoAllDto();
+            WebApiInfo.Db ??= new Models.DTO.GstUsrInfoDbDto();
+            WebApiInfo.Friends ??= new List<Models.DTO.GstUsrInfoFriendsDto>();
+            WebApiInfo.Pets ??= new List<Models.DTO.GstUsrInfoPetsDto>();
+            WebApiInfo.Quotes ??= new List<Models.DTO.GstUsrInfoQuotesDto>();
+
+            LocalInfo ??= new Models.DTO.GstUsrInfoAllDto();
+            LocalInfo.Db ??= new Models.DTO.GstUsrInfoDbDto();
+            LocalInfo.Friends ??= new List<Models.DTO.GstUsrInfoFriendsDto>();
+            LocalInfo.Pets ??= new List<Models.DTO.GstUsrInfoPetsDto>();
+            LocalInfo.Quotes ??= new List<Models.DTO.GstUsrInfoQuotesDto>();
+
             return Page();
         }
     }
